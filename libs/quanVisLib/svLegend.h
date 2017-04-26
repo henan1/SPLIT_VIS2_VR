@@ -1,0 +1,56 @@
+#ifndef __SV_LEGEND_H
+#define __SV_LEGEND_H
+
+#include "svArray.h"
+#include "svUtil.h"
+
+#define SV_EXPANDED  0
+#define SV_COLLAPSED 1
+#define SV_SPHERE_IT 15
+
+namespace __svl_lib {
+     class svLegend {
+     public:
+	  svLegend(svInt N, svScalar origin, svScalar end,
+		   svScalar radius, svColor3 color);
+	  svLegend(svInt N, svScalar origin, svScalar end, svColor3 color);
+	  svLegend(svInt N, svScalar radius, svColor3 color);
+	  virtual ~svLegend();
+	  virtual void Expand(svInt index);
+	  virtual void Collapse(svInt index);
+	  virtual void Render(svScalar alpha);
+          virtual void Process();
+
+          virtual void Close(svVector3 rayp1, svVector3 rayp2);
+	  virtual int Select(svVector3 rayp1, svVector3 rayp2);
+	  virtual void Move(svVector3 rayp1, svVector3 rayp2, int index);
+
+          MArray<svIntArray> GetBinIndex(){return binindex;}
+          svVector3Array GetBinPositions(){return binpositions;}
+          svIntArray GetBinCollapsed(){return bincollapsed;}
+
+     protected:
+	  virtual void updatePositions();
+
+     private:
+	  void init(svInt N, svScalar origin, svScalar end,
+		    svScalar radius, svColor3 color);
+
+          MArray<svIntArray> binindex;
+          svVector3Array binpositions;
+          svIntArray bincollapsed; 
+
+	  svScalarArray positions; /* Array indicating the Z position of each sphere */
+	  svIntArray collapsed;    /* Array indicating which spheres are collapsed */
+	  svInt N;                 /* Number of items on the legend */
+	  svScalar origin;         /* Starting point of the legend (along the Z-axis) */
+	  svScalar end;            /* Ending point of the legend (along the Z-axis) */
+	  svScalar radius;         /* Radius of all spheres */
+	  svVector3 color;         /* Color of all spheres */
+	  svIntArray select;
+          svInt close;
+	  svIntArray selected;
+     };
+}
+
+#endif /* __SV_LEGEND_H */

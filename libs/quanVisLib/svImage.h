@@ -1,0 +1,43 @@
+#ifndef __SV_IMAGE_H
+#define __SV_IMAGE_H
+
+#include "svArray.h"
+#include "svPrimitive.h"
+#include "svLut.h"
+#include "svGlyph.h"
+
+namespace __svl_lib {
+
+
+     class svImage {
+     public:
+	  svImage(svRasterArray &imagePlanes,
+		  MArray<svScalar2DArray> &imageWidths,
+		  MArray<svScalar2DArray> &imageSpacing,
+		  svScalar width, svScalar height, svScalar depth,
+		  svScalar xOrigin, svScalar yOrigin, svScalar zOrigin,
+		  svScalar separation, svScalar heightScale);
+
+	  virtual ~svImage();
+
+	  virtual void Render(svScalar alpha);
+
+     protected:
+     private:
+	  svRasterArray imagePlanes;
+	  MArray<svScalar2DArray> imageWidths;
+	  MArray<svScalar2DArray> imageSpacing;
+
+	  svInt N; /* Number of cutting planes */
+	  svScalar width;  /* Width of each plane */
+	  svScalar height; /* Height of each plane */
+	  svScalar depth;  /* Depth of each plane */
+	  svScalar xOrigin; /* Starting x (left) position */
+	  svScalar yOrigin; /* Starting y (bottom) position */
+	  svScalar zOrigin; /* Starting z (back) position */
+	  svScalar separation; /* Space along x between each plane (in units of a plane) */
+          svScalar heightScale;
+     };
+}
+
+#endif /* __SV_IMAGE_H */

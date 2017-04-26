@@ -1,0 +1,125 @@
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include "svImage.h"
+#include "svException.h"
+#include "svUtil.h"
+#include "svGlyph.h"
+#include <cstdlib>
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+using namespace std;
+
+namespace __svl_lib {
+     svImage::svImage(svRasterArray &imagePlanes,
+                      MArray<svScalar2DArray> &imageWidths,
+                      MArray<svScalar2DArray> &imageSpacing,
+                      svScalar width, svScalar height, svScalar depth,
+                      svScalar xOrigin, svScalar yOrigin, svScalar zOrigin,
+                      svScalar separation, svScalar heightScale) {
+          assert(imagePlanes.size() == imageWidths.size());
+          assert(imageWidths.size() == imageSpacing.size());
+          assert(separation >= 0);
+
+          for (int i = 0; i < imagePlanes.size(); i++) {
+               /* Verify equal number of rows */
+               assert(imagePlanes[i].size() == imageWidths[i].size());
+               assert(imageWidths[i].size() == imageSpacing[i].size());
+
+               for (int j = 0; j < imagePlanes[i].size(); j++) {
+                    assert(imagePlanes[i][j].size() == imageWidths[i][j].size());
+                    assert(imageWidths[i][j].size() == imageSpacing[i][j].size()-1);
+               }
+          }
+
+          this->N = imagePlanes.size();
+          this->imagePlanes = imagePlanes;
+          this->imageWidths = imageWidths;
+          this->imageSpacing = imageSpacing;
+          this->width = width;
+          this->height = height;
+          this->depth = depth;
+          this->xOrigin = xOrigin;
+          this->yOrigin = yOrigin;
+          this->zOrigin = zOrigin;
+          this->separation = separation;
+          this->heightScale = heightScale;
+     }
+
+     svImage::~svImage() { delete &imagePlanes; }
+
+     void svImage::Render(svScalar alpha) {
+          //glClear(GL_COLOR_BUFFER_BIT);
+
+          svScalar xCursor = xOrigin;
+          svScalar yCursor = yOrigin;
+          svScalar zCursor = zOrigin;
+
+          for (int n = 0; n < N; n++) {
+               yCursor = yOrigin;
+
+               svInt x = imagePlanes[n].size();
+
+               for (int i = 0; i < x; i++) {
+                    xCursor = xOrigin + n*width + n*separation;
+
+                    svInt y = imagePlanes[n][i].size();
+                    svScalar totalWidth = 0;
+
+                    for (int j = 0; j <= y; j++) {
+                         if (j < y)
+                              totalWidth += imageWidths[n][i][j];
+
+                         totalWidth += imageSpacing[n][i][j];
+                    }
+
+                    svScalar widthScale = width / ((double) totalWidth);
+                   // svScalar heightScale = height / ((double) y);
+
+                    for (int j = 0; j < y; j++) {
+                         xCursor += widthScale*imageSpacing[n][i][j];
+
+                         glBegin(GL_QUADS);//POLYGON);
+
+                         glColor4f(imagePlanes[n][i][j][0],
+                                   imagePlanes[n][i][j][1],
+                                   imagePlanes[n][i][j][2],
+                                   alpha);
+
+                         svScalar xLeft  = xCursor;
+                         svScalar xRight = xCursor + widthScale*imageWidths[n][i][j];
+                         svScalar yBot = yCursor;
+                         svScalar yTop = yCursor + heightScale;
+                         svScalar zBack  = zCursor;
+                         svScalar zFront = zCursor + depth;
+
+                         //printf("%f %f %f\n", xCursor, yCursor, zCursor);
+                         glVertex3f(xLeft, yTop, zBack);
+                         glVertex3f(xLeft, yBot, zBack);
+                         glVertex3f(xRight, yBot, zBack);
+                         glVertex3f(xRight, yTop, zBack);
+
+                         glVertex3f(xLeft, yTop, zFront);
+                         glVertex3f(xLeft, yBot, zFront);
+                         glVertex3f(xRight, yBot, zFront);
+                         glVertex3f(xRight, yTop, zFront);
+
+                         xCursor += widthScale*imageWidths[n][i][j];
+
+                         glEnd();
+                    }
+
+                    yCursor += heightScale;
+               }
+          }
+
+         // glFlush();
+     }
+}
+
+
