@@ -17,7 +17,7 @@ class svQDOTImage:public svGlyph{
 
    virtual void Generate(MArray<svIntArray> bins, svVector3Array positions, 
               svIntArray collapsed, svScalar separation = 0.25);
-
+   //virtual void Generate(int layer, int list);
    virtual void Render();
 
   protected:

@@ -54,7 +54,7 @@ class svQDOT : public svVectorField
         svInt GetNumPower(){return numPower;}
         svScalar GetScaling(){return scaling;}	
     virtual ~svQDOT(){}
-	
+	svScalar getMinDen(){return min_den_zero;}
 protected:
 
 	//svInt Cluster_isWhole;
@@ -68,7 +68,7 @@ protected:
 	svScalar ydistance;
 	svScalar zdistance;
 	svScalar scaling;
-        svScalar min_den;
+    svScalar min_den;
         svScalar max_den;
         svInt numPower;
         svScalar min_den_zero;

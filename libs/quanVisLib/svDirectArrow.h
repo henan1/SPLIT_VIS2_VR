@@ -32,7 +32,8 @@ class svDirectArrow : public svGlyph {
   
     virtual void Render();
     virtual void Generate();
-
+    //virtual void GenerateSpiral();
+    virtual void Generate(int layer, int list);
   private:
     void RenderStore() const; 
 

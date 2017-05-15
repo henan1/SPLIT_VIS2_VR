@@ -151,6 +151,7 @@ int genVTKfromOrg::CheckFormat(char *file)
 	|| str[i] > '9')
 	&& str[i] != '-'
 	&& str[i] !='.'
+    && str[i] !='e'
 	&& flag == true)
 	{
 		count++;
@@ -159,7 +160,8 @@ int genVTKfromOrg::CheckFormat(char *file)
 	else if((str[i] >= '0' 
 	&& str[i] <= '9')
 	|| str[i] == '-'
-	|| str[i] =='.')
+	|| str[i] =='.'
+    || str[i] == 'e')
 	{
 	//cerr<<str[i]<<endl;
 		flag = true;

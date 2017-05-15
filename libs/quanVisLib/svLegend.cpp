@@ -91,7 +91,7 @@ void svLegend::Move(svVector3 rayp1, svVector3 rayp2, int index)
 	for(int i=0;i<N;i++)
         {
 	    selected[i] = false;
-            p[0]=-25;p[1]=-25;p[2]=positions[i];
+            p[0]=-9.75;p[1]=-9.75;p[2]=positions[i];
             //if(GetDot(p-rayp1, rayp2-rayp1)>=0.000001)
             //{
                  dd = PointtoLine(rayp1, rayp2, p);
@@ -131,7 +131,7 @@ int svLegend::Select(svVector3 rayp1, svVector3 rayp2)
         svVector3 p;
 	for(int i=0;i<N;i++)
         {
-            p[0]=-25;p[1]=-25;p[2]=positions[i];
+            p[0]=-9.75;p[1]=-9.75;p[2]=positions[i];
             if(GetDot(p-rayp1, rayp2-rayp1)>=0.000001)
             {
                  dd = PointtoLine(rayp1, rayp2, p);
@@ -175,7 +175,7 @@ void  svLegend::Close(svVector3 rayp1, svVector3 rayp2)
         svVector3 p;
 	for(int i=0;i<N;i++)
         {
-            p[0]=-25;p[1]=-25;p[2]=positions[i];
+            p[0]=-9.75;p[1]=-9.75;p[2]=positions[i];
             if(GetDot(p-rayp1, rayp2-rayp1)>=0.000001)
             {
                  dd = PointtoLine(rayp1, rayp2, p);
@@ -225,7 +225,7 @@ void svLegend::Process()
        }
 
        updatePositions();
-	select.free();
+	   select.free();
        for(int i=0;i<N;i++)selected[i] = false;
 }
 
@@ -240,7 +240,7 @@ void svLegend::Process()
                     fabs(prev-positions[n]) :
                     -fabs(prev-positions[n]);
                glPushMatrix();
-               glTranslatef(-25, -25,positions[n]);//delta);//delta, 0); /* TODO: Change this to glTranslatef(0, 0, delta); */
+               glTranslatef(-9.75, -9.75,positions[n]);//delta);//delta, 0); /* TODO: Change this to glTranslatef(0, 0, delta); */
 //hard code!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                if (collapsed[n] == SV_COLLAPSED)
                     glColor4f(1-color[0], 1-color[1], 1-color[2], alpha);
@@ -255,6 +255,14 @@ void svLegend::Process()
                      RenderCone(radius, radius/2., 4);
                glPopMatrix();
 
+               if(n%5==0 && n>0)
+               {
+               glPushMatrix();
+               glTranslatef(-9.75-radius*4, -9.75-radius*4,(positions[n]+positions[n-1])/2.);
+               glColor4f(1,1,1,1);
+                     RenderCone(radius*4,radius/4.,4);
+               glPopMatrix();
+               }
                 //char str[20];
                //sprintf(str, "%d", n);
                //glRasterPos3f(-25.1,-25.1,positions[n]);
@@ -288,7 +296,7 @@ void svLegend::Process()
                     b.add(n);
                     
                     for (int m = n+1; m < N; m++) {
-                         if (collapsed[m] == SV_COLLAPSED && c<5) //hard code!!!!!!!!!
+                         if (collapsed[m] == SV_COLLAPSED && c<4) //hard code!!!!!!!!!
                          {
                                 b.add(m);
                                 c++;

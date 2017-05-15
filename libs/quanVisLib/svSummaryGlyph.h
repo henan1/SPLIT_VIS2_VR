@@ -45,7 +45,7 @@ private:
     svVector4Array summaryColor;
     svVector4Array summaryDenColor;
 
-    svInt scaling;
+//    svInt scaling;
     svInt numPower; 
 
     svScalarArray *denDistribute;

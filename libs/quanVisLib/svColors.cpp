@@ -297,7 +297,7 @@ for(int i=0;i<59;i++)
 			color[1] = D3COLORS1[i][1];
 			color[2] = D3COLORS1[i][2];
 			color[3] = 1;
-   double R,G,B, r,g,b;
+/*   double R,G,B, r,g,b;
                 R = color[0];
                 G = color[1];
                 B = color[2];
@@ -306,7 +306,7 @@ for(int i=0;i<59;i++)
                 color[0] = r;
                 color[1] = g;
                 color[2] = b;
-
+*/
 			colorModel[0].add(color);
 	}
 	
@@ -347,7 +347,7 @@ for(int i=0;i<59;i++)
 			color[3] = 1;
 //			colorModel[1].add(color);
 
-   double R,G,B, r,g,b;
+/*   double R,G,B, r,g,b;
 		R = color[0];
 		G = color[1];
 		B = color[2];
@@ -356,7 +356,7 @@ for(int i=0;i<59;i++)
 		color[0] = r;
 		color[1] = g;
 		color[2] = b;
-                        colorModel[1].add(color);
+  */                      colorModel[1].add(color);
 
 	}
 }

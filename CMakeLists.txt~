@@ -224,17 +224,6 @@ target_include_directories(task3sample2m2 PRIVATE ${SVL_INCLUDE_DIR}
 ${JCUTIL_INCLUDE_DIR})
 install(TARGETS task3sample2m2 RUNTIME DESTINATION bin)
 
-add_executable(test11 SplitTool/test11.cpp)
-target_link_libraries(test11 svl ${GLUT_LIBRARIES} ${OPENGL_LIBRARIES} omega pthread glut)
-target_include_directories(test11 PRIVATE ${SVL_INCLUDE_DIR}
-${JCUTIL_INCLUDE_DIR})
-install(TARGETS test11 RUNTIME DESTINATION bin)
-
-add_executable(test12 SplitTool/test12.cpp)
-target_link_libraries(test12 svl ${GLUT_LIBRARIES} ${OPENGL_LIBRARIES} omega pthread glut)
-target_include_directories(test12 PRIVATE ${SVL_INCLUDE_DIR}
-${JCUTIL_INCLUDE_DIR})
-install(TARGETS test12 RUNTIME DESTINATION bin)
 
 #add_executable(splitToolkit_z10z SplitTool/splitToolkit_z10z.cpp)
 #target_link_libraries(splitToolkit_z10z svl ${GLUT_LIBRARIES} ${OPENGL_LIBRARIES} omega pthread glut)

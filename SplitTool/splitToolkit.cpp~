@@ -172,10 +172,8 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
        // if(newlist){   qdotimage->Generate(legend->GetBinIndex(), legend->GetBinPositions(),
          //             legend->GetBinCollapsed(), 0.25); newlist = false;}
 
- 
         if(newlist)
         {
-
             directglyph->SetLayerShift(legend->GetBinPositions(),
                       legend->GetBinCollapsed(),legend->GetBinIndex());
              qdotimage->Generate(legend->GetBinIndex(), legend->GetBinPositions(),
@@ -191,7 +189,7 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
 	glTranslatef(0,1.5,-6);
 	glMultMatrixf(m); 
 	glRotatef(-90,1,0,0);
-    glTranslatef(shiftx, 0,shifty);
+        glTranslatef(shiftx, 0,shifty);
 	glScalef(0.1,0.1,0.1);
 	glScalef(scale,scale,scale);
 
@@ -204,13 +202,8 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
         //outline->DrawXYZ(splitglyph->GetLb(), splitglyph->GetRb());
 
         //glColor3f(1,0,0);
-glEnable(GL_LIGHTING);
-glEnable(GL_LIGHT0);
         directglyph->Render();
  	//glCallList(5);
- 	    glDisable(GL_LIGHTING);
-      glDisable(GL_LIGHT0);
-
 	legend->Render(1);
         qdotimage->Render();
 
@@ -334,7 +327,7 @@ void QDOTRenderPass::initialize()//rbfname, char *cpname)
   for(int i=0;i<50;i++)//
   {
               sprintf(str, "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/%d.txt",i);// configproperty.storeDir, configproperty.rawFile, i);
-	          //cout<<str<<endl; //directglyph->SetData(str, i);
+	          cout<<str<<endl; //directglyph->SetData(str, i);
               directglyph->SetDataLayer(str,i );
               qdotimage->SetDataLayer(str, i);
   }

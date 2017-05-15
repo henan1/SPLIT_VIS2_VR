@@ -23,8 +23,8 @@ svQDOTImage::svQDOTImage(svChar *inf)
      //imageWidths = new svScalar2DArray[1];
      //imageSpacing = new svScalar2DArray[1];
 
-     pSize[0] = 50;
-     pSize[1] = 50;
+     pSize[0] = 9.75*2;
+     pSize[1] = 9.75*2;
      pSize[2] = 0.25;
 
      SetImage(inf);
@@ -96,12 +96,10 @@ void svQDOTImage::Generate(MArray<svIntArray> bins, svVector3Array positions,
 		glDeleteLists(display_list, 1); 
        glNewList(display_list, GL_COMPILE);
 
-      // glDisable(GL_LIGHTING);
-       //glDisable(GL_LIGHT0);
+       glDisable(GL_LIGHTING);
+       glDisable(GL_LIGHT0);
 
       // this->separation = separation;
-
-
 
        for(int i=0;i<collapsed.size();i++)
        {
@@ -143,6 +141,7 @@ void svQDOTImage::Generate(MArray<svIntArray> bins, svVector3Array positions,
                    width.add(www); //www.free();
                    spacing.add(sss); //sss.free();
                    color.add(ccc); //ccc.free();
+ 
               }
             
               svImage *image = new svImage(color, width, spacing,
@@ -153,9 +152,11 @@ void svQDOTImage::Generate(MArray<svIntArray> bins, svVector3Array positions,
               glPushMatrix();
               glTranslatef(0,0, positions[i][2]);
               glRotatef(90,1,0,0);
-              glScalef(0.01,0.01,0.01);
+              glScalef(0.02,0.02,0.02);
               image->Render(1);
-              glPopMatrix();             
+              glPopMatrix();     
+
+      
 
              /* delete image;
 		
@@ -175,6 +176,9 @@ void svQDOTImage::Generate(MArray<svIntArray> bins, svVector3Array positions,
               spacing.free();*/
            }
        }
+
+
+      
 
 	glEndList();
 }

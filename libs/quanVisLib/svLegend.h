@@ -27,6 +27,7 @@ namespace __svl_lib {
 
           MArray<svIntArray> GetBinIndex(){return binindex;}
           svVector3Array GetBinPositions(){return binpositions;}
+          svScalarArray GetPositions(){return positions;}
           svIntArray GetBinCollapsed(){return bincollapsed;}
 
      protected:

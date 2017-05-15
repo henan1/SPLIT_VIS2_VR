@@ -204,15 +204,15 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
         //outline->DrawXYZ(splitglyph->GetLb(), splitglyph->GetRb());
 
         //glColor3f(1,0,0);
-glEnable(GL_LIGHTING);
-glEnable(GL_LIGHT0);
+//glEnable(GL_LIGHTING);
+//glEnable(GL_LIGHT0);
         directglyph->Render();
  	//glCallList(5);
  	    glDisable(GL_LIGHTING);
       glDisable(GL_LIGHT0);
 
 	legend->Render(1);
-        qdotimage->Render();
+        //qdotimage->Render();
 
         glPopMatrix(); 
 
@@ -343,6 +343,11 @@ void QDOTRenderPass::initialize()//rbfname, char *cpname)
   qdotimage->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/cluster.txt");
   qdotimage->SetDisplayList(30);
   //directglyph->SetColorByCluster();
+              directglyph->SetLayerShift(legend->GetBinPositions(),
+                           legend->GetBinCollapsed(),legend->GetBinIndex());
+  
+     int scaling = flow_field->GetScaling();
+   directglyph->SetScaling(scaling);
 
   directglyph->Generate();
   qdotimage->SetImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/");

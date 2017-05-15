@@ -204,15 +204,15 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
         //outline->DrawXYZ(splitglyph->GetLb(), splitglyph->GetRb());
 
         //glColor3f(1,0,0);
-glEnable(GL_LIGHTING);
-glEnable(GL_LIGHT0);
+//glEnable(GL_LIGHTING);
+//glEnable(GL_LIGHT0);
         directglyph->Render();
  	//glCallList(5);
  	    glDisable(GL_LIGHTING);
       glDisable(GL_LIGHT0);
 
 	legend->Render(1);
-        qdotimage->Render();
+        //qdotimage->Render();
 
         glPopMatrix(); 
 
@@ -312,13 +312,13 @@ void QDOTRenderPass::initialize()//rbfname, char *cpname)
   svScalar plane_distance=0.25;
 
     flow_field->SetVTK("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/", 
-            "task1sample1",
+            "task3sample1",
                        "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/",
                        "sort.txt", "format.txt", "density.txt",
                        plane_center,
                        plane_vector,
                        plane_distance);
-    flow_field->New("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/format.txt");
+    flow_field->New("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task3sample1/format.txt");
 
   zmin=0;
   zmax = 49;//flow_field->GetPlaneNum()-1;
@@ -328,24 +328,30 @@ void QDOTRenderPass::initialize()//rbfname, char *cpname)
   directglyph  = new svDirectArrow(flow_field);
   directglyph->New(flow_field, 50);
 
-  qdotimage = new svQDOTImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1");
+  qdotimage = new svQDOTImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task3sample1");
   qdotimage->New(flow_field, 50);
 
   for(int i=0;i<50;i++)//
   {
-              sprintf(str, "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/%d.txt",i);// configproperty.storeDir, configproperty.rawFile, i);
+              sprintf(str, "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task3sample1/%d.txt",i);// configproperty.storeDir, configproperty.rawFile, i);
 	          //cout<<str<<endl; //directglyph->SetData(str, i);
               directglyph->SetDataLayer(str,i );
               qdotimage->SetDataLayer(str, i);
   }
 
-  directglyph->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/cluster.txt");//configproperty.step1_kmeansproperty);
-  qdotimage->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/cluster.txt");
+  directglyph->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task3sample1/cluster.txt");//configproperty.step1_kmeansproperty);
+  qdotimage->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task3sample1/cluster.txt");
   qdotimage->SetDisplayList(30);
   //directglyph->SetColorByCluster();
 
+              directglyph->SetLayerShift(legend->GetBinPositions(),
+                           legend->GetBinCollapsed(),legend->GetBinIndex());
+         int scaling = flow_field->GetScaling();
+      directglyph->SetScaling(scaling);
+ 
+
   directglyph->Generate();
-  qdotimage->SetImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/");
+  qdotimage->SetImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task3sample1/");
   qdotimage->Generate(legend->GetBinIndex(), legend->GetBinPositions(),
                       legend->GetBinCollapsed(), 0.25);
 

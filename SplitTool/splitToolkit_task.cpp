@@ -172,10 +172,8 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
        // if(newlist){   qdotimage->Generate(legend->GetBinIndex(), legend->GetBinPositions(),
          //             legend->GetBinCollapsed(), 0.25); newlist = false;}
 
- 
         if(newlist)
         {
-
             directglyph->SetLayerShift(legend->GetBinPositions(),
                       legend->GetBinCollapsed(),legend->GetBinIndex());
              qdotimage->Generate(legend->GetBinIndex(), legend->GetBinPositions(),
@@ -191,7 +189,7 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
 	glTranslatef(0,1.5,-6);
 	glMultMatrixf(m); 
 	glRotatef(-90,1,0,0);
-    glTranslatef(shiftx, 0,shifty);
+        glTranslatef(shiftx, 0,shifty);
 	glScalef(0.1,0.1,0.1);
 	glScalef(scale,scale,scale);
 
@@ -204,13 +202,8 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
         //outline->DrawXYZ(splitglyph->GetLb(), splitglyph->GetRb());
 
         //glColor3f(1,0,0);
-glEnable(GL_LIGHTING);
-glEnable(GL_LIGHT0);
         directglyph->Render();
  	//glCallList(5);
- 	    glDisable(GL_LIGHTING);
-      glDisable(GL_LIGHT0);
-
 	legend->Render(1);
         qdotimage->Render();
 
@@ -306,7 +299,7 @@ void QDOTRenderPass::initialize()//rbfname, char *cpname)
   flow_field = new svQDOT();
   svVector3 color;
   color[0]=1;color[1]=0;color[2]=0;
-  legend = new svLegend(50, -3.5, 8.75, 0.1, color);
+  legend = new svLegend(109, -10, 17, 0.1, color);
   svVector3 plane_center(0,0,0);
   svVector3 plane_vector(0,0,1);
   svScalar plane_distance=0.25;
@@ -318,7 +311,7 @@ void QDOTRenderPass::initialize()//rbfname, char *cpname)
                        plane_center,
                        plane_vector,
                        plane_distance);
-    flow_field->New("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/format.txt");
+    flow_field->New("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample/format.txt");
 
   zmin=0;
   zmax = 49;//flow_field->GetPlaneNum()-1;

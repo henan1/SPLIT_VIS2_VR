@@ -112,6 +112,7 @@ class QDOTRenderPass:  public RenderPass
 {
 public:
     QDOTRenderPass(Renderer* client): RenderPass(client, "QDOTRenderPass") {}
+    void config(char *configfname, ConfigProperty &property);
     virtual void initialize();
     virtual void render(Renderer* client, const DrawContext& context);
    
@@ -172,10 +173,8 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
        // if(newlist){   qdotimage->Generate(legend->GetBinIndex(), legend->GetBinPositions(),
          //             legend->GetBinCollapsed(), 0.25); newlist = false;}
 
- 
         if(newlist)
         {
-
             directglyph->SetLayerShift(legend->GetBinPositions(),
                       legend->GetBinCollapsed(),legend->GetBinIndex());
              qdotimage->Generate(legend->GetBinIndex(), legend->GetBinPositions(),
@@ -191,7 +190,7 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
 	glTranslatef(0,1.5,-6);
 	glMultMatrixf(m); 
 	glRotatef(-90,1,0,0);
-    glTranslatef(shiftx, 0,shifty);
+        glTranslatef(shiftx, 0,shifty);
 	glScalef(0.1,0.1,0.1);
 	glScalef(scale,scale,scale);
 
@@ -204,13 +203,8 @@ void QDOTRenderPass::render(Renderer* client, const DrawContext& context)
         //outline->DrawXYZ(splitglyph->GetLb(), splitglyph->GetRb());
 
         //glColor3f(1,0,0);
-glEnable(GL_LIGHTING);
-glEnable(GL_LIGHT0);
         directglyph->Render();
  	//glCallList(5);
- 	    glDisable(GL_LIGHTING);
-      glDisable(GL_LIGHT0);
-
 	legend->Render(1);
         qdotimage->Render();
 
@@ -296,56 +290,272 @@ glEnable(GL_LIGHT0);
    // }
 }
 
+void QDOTRenderPass::config(char *configfname, ConfigProperty &property)
+{
+	contourindex = 0;
+        float store;
+
+	ifstream infile(configfname);
+   // cout<<configfname<<endl;
+	property.rawDir = new char[200];
+	property.rawFile = new char[200];
+	property.storeDir = new char[200];
+	
+	string tmp;
+	/*-------------file names-----------------*/
+	infile>>tmp;
+	infile>>property.rawDir;
+	infile>>tmp;
+	infile>>property.rawFile;
+	infile>>tmp;
+	infile>>property.storeDir;//cout<<property.storeDir<<endl;
+	mkdir(property.storeDir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);  
+
+         infile>>tmp;
+	infile>>property.plane_center[0]>>property.plane_center[1]>>property.plane_center[2];
+	infile>>tmp;
+	infile>>property.plane_vector[0]>>property.plane_vector[1]>>property.plane_vector[2];
+	infile>>tmp;
+	infile>>property.plane_distance;
+	/*--------------initialization of QDOT field------------*/
+	char *qdot_format = new char[200];
+	sprintf(qdot_format,"%s/%s/format.txt", property.storeDir, 
+	            property.rawFile);
+   //cout<<qdot_format<<endl;
+    flow_field->SetVTK(property.rawDir, property.rawFile,
+	                   property.storeDir,
+					   "sort.txt", "format.txt", "density.txt",
+					   property.plane_center,
+					   property.plane_vector,
+					   property.plane_distance);
+   //cout<<qdot_format<<endl;
+    flow_field->New(qdot_format);
+   //cout<<qdot_format<<endl;	
+	delete [] qdot_format;
+	
+	/*--------------clustering------------------------------*/
+	infile>>tmp; //cerr<<tmp<<endl;
+	infile>>tmp;
+
+	property.magrange = new svScalarArray[2];
+	
+	/*-------------step 1-----------------------------------*/
+    property.step1_kmeansproperty.dimension = 7;
+    property.step1_kmeansproperty.isNormalize = true;
+    property.step1_kmeansproperty.clusterLayer.free();
+    property.step1_kmeansproperty.clusterWeight.free();
+    for(int i=0;i<flow_field->GetPlaneNum();i++)
+    {
+        property.step1_kmeansproperty.clusterLayer.add(-1);
+    }   
+  	infile>>tmp;// cerr<<tmp<<endl;
+	for(int i=0;i<CLUSTER_DIMENSION;i++)
+	{
+		infile>>store;
+		property.step1_kmeansproperty.clusterWeight.add(store);
+	}	
+	int index1, index2;
+	infile>>tmp;//cerr<<tmp<<endl;
+	infile>>index1;
+	infile>>index2;
+	infile>>tmp; //cerr<<tmp<<endl;
+	infile>>store;  
+    bool isWhole = store;
+    if(isWhole)
+    {
+                 for(int i=index1; i<=index2;i++)
+                {
+                   property.step1_kmeansproperty.clusterLayer[i]++;
+                }
+    }
+    else
+    {
+            int count = 1;
+             for(int i=index1; i<=index2;i++)
+                {
+                   property.step1_kmeansproperty.clusterLayer[i]= property.step1_kmeansproperty.clusterLayer[i]+count;
+                   count++; 
+                }
+    }
+    char *str = new char[400];
+	infile>>tmp; //cerr<<tmp<<endl;
+	infile>>store;  property.magrange[0].add(store);
+	infile>>store;  property.magrange[0].add(store);
+	infile>>tmp; //cerr<<tmp<<endl;
+	infile>>store;   property.step1_kmeansproperty.numCluster = store;	
+	sprintf(str, "%s/%s/input.txt", property.storeDir, property.rawFile);
+	property.step1_kmeansproperty.file1 = strdup(str);
+	sprintf(str, "%s/%s/output.txt", property.storeDir, property.rawFile);
+	property.step1_kmeansproperty.file2 = strdup(str);
+
+    /*--------------------step 2-------------------------------------------*/
+    property.step2_kmeansproperty.dimension = 7;
+    property.step2_kmeansproperty.isNormalize = true;
+property.step2_kmeansproperty.clusterLayer.free();
+property.step2_kmeansproperty.clusterWeight.free();
+    for(int i=0;i<flow_field->GetPlaneNum();i++)
+    {
+        property.step2_kmeansproperty.clusterLayer.add(-1);
+    }  
+        infile>>tmp;//cerr<<tmp<<endl; 
+  	infile>>tmp; //cerr<<tmp<<endl;
+	for(int i=0;i<CLUSTER_DIMENSION;i++)
+	{
+		infile>>store;
+		property.step2_kmeansproperty.clusterWeight.add(store);
+	}	
+	//int index1, index2;
+	infile>>tmp;//cerr<<tmp<<endl;
+	infile>>index1;
+	infile>>index2;
+	for(int i=index1; i<=index2;i++)
+	{
+		property.step2_kmeansproperty.clusterLayer[i]++;
+	}
+	infile>>tmp; //cerr<<tmp<<endl;
+	infile>>store;  
+    isWhole = store;
+    if(isWhole)
+    {
+                 for(int i=index1; i<=index2;i++)
+                {
+                   property.step2_kmeansproperty.clusterLayer[i]++;
+                }
+    }
+    else
+    {
+            int count = 1;
+             for(int i=index1; i<=index2;i++)
+                {
+                   property.step2_kmeansproperty.clusterLayer[i]= property.step2_kmeansproperty.clusterLayer[i]+count;
+                   count++; 
+                }
+    }
+	infile>>tmp;// cerr<<tmp<<endl;
+	infile>>store;  property.magrange[1].add(store);
+	infile>>store;  property.magrange[1].add(store);
+	infile>>tmp;// cerr<<tmp<<endl;
+	infile>>store;   property.step2_kmeansproperty.numCluster = store;	
+	sprintf(str, "%s/%s/input.txt", property.storeDir, property.rawFile);
+	property.step2_kmeansproperty.file1 = strdup(str);
+	sprintf(str, "%s/%s/output.txt", property.storeDir, property.rawFile);
+	property.step2_kmeansproperty.file2 = strdup(str);
+
+   // zmin=0;
+   // zmax = flow_field->GetPlaneNum()-1;
+
+    delete [] str;	
+	infile.close();
+
+}
 
 //void init();
 void QDOTRenderPass::initialize()//rbfname, char *cpname)
 {
-  RenderPass::initialize();
-  newlist = false;
+ //  cout<<"init"<<endl;
+
+      RenderPass::initialize();
+      newlist = false;
+  //      InitLight();
+  // init();
+//   directglyph->Generate();
+//   splitglyph->Generate();
+
+//cout<<"init"<<endl;
+  //outline = new svOutline();
+  //flow_field = new svQDOT();
+  //char *configfname = new char[200];
+  //sprintf(configfname, "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/SplitTool/config");
+  //config(configfname, configproperty);
+
+
+/*
+
+      myNormals[0] = svVector3(-1, 0, 0);
+      myNormals[1] = svVector3(0, 1, 0);
+      myNormals[2] = svVector3(1, 0, 0);
+      myNormals[3] = svVector3(0, -1, 0);
+      myNormals[4] = svVector3(0, 0, 1);
+      myNormals[5] = svVector3(0, 0, -1);
+  
+      // Initialize cube face indices.
+      myFaces[0] = Vector4i(0, 1, 2, 3);
+      myFaces[1] = Vector4i(3, 2, 6, 7);
+      myFaces[2] = Vector4i(7, 6, 5, 4);
+      myFaces[3] = Vector4i(4, 5, 1, 0);
+      myFaces[4] = Vector4i(5, 6, 2, 1);
+      myFaces[5] = Vector4i(7, 4, 0, 3);
+  
+      // Initialize cube face colors.
+      myFaceColors[0] = Color::Aqua;
+      myFaceColors[1] = Color::Orange;
+      myFaceColors[2] = Color::Olive;
+      myFaceColors[3] = Color::Navy;
+      myFaceColors[4] = Color::Red;
+      myFaceColors[5] = Color::Yellow;
+
+
+      float size = 0.2f;
+      myVertices[0][0] = myVertices[1][0] = myVertices[2][0] = myVertices[3][0] = -size;
+      myVertices[4][0] = myVertices[5][0] = myVertices[6][0] = myVertices[7][0] = size;
+      myVertices[0][1] = myVertices[1][1] = myVertices[4][1] = myVertices[5][1] = -size+2;
+      myVertices[2][1] = myVertices[3][1] = myVertices[6][1] = myVertices[7][1] = size+2;
+      myVertices[0][2] = myVertices[3][2] = myVertices[4][2] = myVertices[7][2] = size-2;
+      myVertices[1][2] = myVertices[2][2] = myVertices[5][2] = myVertices[6][2] = -size-2;
+
+*/
+
+  //cout<<"init"<<endl;
 
   flow_field = new svQDOT();
   svVector3 color;
   color[0]=1;color[1]=0;color[2]=0;
-  legend = new svLegend(50, -3.5, 8.75, 0.1, color);
+  legend = new svLegend(109, -10, 17, 0.1, color);
   svVector3 plane_center(0,0,0);
   svVector3 plane_vector(0,0,1);
   svScalar plane_distance=0.25;
 
     flow_field->SetVTK("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/", 
-            "task1sample1",
-                       "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/",
-                       "sort.txt", "format.txt", "density.txt",
-                       plane_center,
-                       plane_vector,
-                       plane_distance);
-    flow_field->New("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/format.txt");
+			"spin_proj_norm_vs_pos_p_v_z_10z",
+	                   "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/",
+					   "sort.txt", "format.txt", "density.txt",
+					   plane_center,
+					   plane_vector,
+					   plane_distance);
+    flow_field->New("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/spin_proj_norm_vs_pos_p_v_z_10z/format.txt");
 
-  zmin=0;
-  zmax = 49;//flow_field->GetPlaneNum()-1;
+    zmin=0;
+    zmax = 108;//flow_field->GetPlaneNum()-1;
 
   char *str = new char[400];
 
   directglyph  = new svDirectArrow(flow_field);
-  directglyph->New(flow_field, 50);
+  directglyph->New(flow_field, flow_field->GetPlaneNum());
 
-  qdotimage = new svQDOTImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1");
-  qdotimage->New(flow_field, 50);
+  qdotimage = new svQDOTImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/spin_proj_norm_vs_pos_p_v_z_10z");
+  qdotimage->New(flow_field, flow_field->GetPlaneNum());
 
-  for(int i=0;i<50;i++)//
+  for(int i=0;i<flow_field->GetPlaneNum();i++)//
   {
-              sprintf(str, "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/%d.txt",i);// configproperty.storeDir, configproperty.rawFile, i);
+              sprintf(str, "/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/spin_proj_norm_vs_pos_p_v_z_10z/%d.txt",i);// configproperty.storeDir, configproperty.rawFile, i);
 	          //cout<<str<<endl; //directglyph->SetData(str, i);
               directglyph->SetDataLayer(str,i );
               qdotimage->SetDataLayer(str, i);
   }
 
-  directglyph->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/cluster.txt");//configproperty.step1_kmeansproperty);
-  qdotimage->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/cluster.txt");
+  //splitglyph->SetContourLabel();
+
+  //splitglyph->ResetCluster();
+  //splitglyph->SetVisible(contourindex);
+  //directglyph->SetVisible(zmin, zmax);
+  //splitglyph->SetROI(configproperty.magrange[0][0], configproperty.magrange[0][1]);
+  directglyph->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/spin_proj_norm_vs_pos_p_v_z_10z/cluster.txt");//configproperty.step1_kmeansproperty);
+  qdotimage->GenerateClusters("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/spin_proj_norm_vs_pos_p_v_z_10z/cluster.txt");
   qdotimage->SetDisplayList(30);
   //directglyph->SetColorByCluster();
 
   directglyph->Generate();
-  qdotimage->SetImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/task/task1sample1/");
+  qdotimage->SetImage("/home/henan/Documents/OmegaLib/examples/SPLIT_VIS2/tmp/spin_proj_norm_vs_pos_p_v_z_10z/");
   qdotimage->Generate(legend->GetBinIndex(), legend->GetBinPositions(),
                       legend->GetBinCollapsed(), 0.25);
 
@@ -353,8 +563,15 @@ void QDOTRenderPass::initialize()//rbfname, char *cpname)
   scale = 1;
   analogLR = 0;
   analogUD = 0;
+ //delete [] configfname; 
+
+
+
 
  delete [] str;
+
+  //GLfloat x, y, z;
+  //flow_field->GetPhysicalDimension(&x,&y, &z);
 
 }
 

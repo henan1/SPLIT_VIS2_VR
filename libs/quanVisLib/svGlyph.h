@@ -128,7 +128,7 @@ class svGlyph : public svPrimitive
   virtual void Replace(svUint glyph_num, 
                 svScalar x, svScalar y, svScalar z){}; 
   // Not imeplemented
-  
+    virtual void SetScaling(int scale){scaling = scale;} 
    void SetLayerShift(svVector3Array s, svIntArray collapsed, 
                      MArray<svIntArray> binindex);
    virtual svInt GetContourListSize(){return contourList.size();}
@@ -194,6 +194,7 @@ class svGlyph : public svPrimitive
 
  //svPeeling *peeling;
 
+  int scaling;
   svChar *infile;
   
   //svChar *glyphDir;
