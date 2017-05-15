@@ -4,3 +4,6 @@ Build the program:
 
 Run the program (OMEGALIB HAS BEEN INSTALLED)
     bin/splitToolkit <CONFIG_FILE>
+
+Please check task1sample1m1.cpp. 
+   
